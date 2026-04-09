@@ -1,3 +1,5 @@
-fn main() {
-    println!("Hello, world!");
+use shuka::cli;
+
+fn main() -> Result<(), shuka::error::ShukaError> {
+    cli::run()
 }
