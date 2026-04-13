@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
-use crate::{error::ShukaError,
-            types::{ExplorerKind, FetchRequest},
+use crate::{
+    error::ShukaError,
+    types::{ExplorerKind, FetchRequest},
 };
-use clap::{Parser, Subcommand, Args, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 
 #[derive(Debug, Parser)]
 #[command(name = "shuka")]
@@ -29,7 +30,7 @@ pub struct FetchArgs {
 
 impl FetchArgs {
     pub fn into_request(self) -> FetchRequest {
-        let request: FetchRequest = FetchRequest { 
+        let request: FetchRequest = FetchRequest {
             explorer: self.explorer.into(),
             address: self.address,
             chain_id: self.chain_id,
