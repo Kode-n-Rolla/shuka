@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
+    app::run_fetch,
     error::ShukaError,
     types::{ExplorerKind, FetchRequest},
 };
@@ -62,7 +63,8 @@ pub fn run() -> Result<(), ShukaError> {
     match cli.command {
         Commands::Fetch(args) => {
             let request = args.into_request();
-            println!("Request: {:#?}", request);
+            let outcome = run_fetch(request)?;
+            println!("Outcome: {:#?}", outcome);
             Ok(())
         }
     }
