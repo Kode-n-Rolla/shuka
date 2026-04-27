@@ -2,7 +2,7 @@ use crate::{
     error::ShukaError,
     explorers::{battlechain, ethereum},
     parsers::source::parse_source,
-    storage::writer::write_source_files,
+    storage::writer::{write_raw_response, write_source_files},
     types::{ExplorerKind, FetchOutcome, FetchRequest}
 };
 use crate::explorers::traits::SourceExplorer;
@@ -18,6 +18,8 @@ pub fn run_fetch(request: FetchRequest) -> Result<FetchOutcome, ShukaError> {
             explorer.fetch(&request)
         }
     }?;
+
+    write_raw_response(&request, &raw_response)?;
 
     let parsed_bundle = parse_source(&raw_response)?;
 
