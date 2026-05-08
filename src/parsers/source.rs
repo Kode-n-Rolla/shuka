@@ -88,8 +88,6 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
         contract
     };
 
-    println!("{:?}", files[0].content);
-
     Ok(ParsedSourceBundle {
         files,
         metadata: Some(ContractMetadata {

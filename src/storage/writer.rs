@@ -15,6 +15,17 @@ pub fn write_source_files(
 
         prepare_directory(&output_path)?;
 
+        for file in &bundle.files {
+            let full_path = output_path.join(&file.path);
+            if let Some(parent) = full_path.parent() {
+                let parent_dir: PathBuf = parent.to_path_buf();
+                prepare_directory(&parent_dir)?
+            }
+
+            fs::write(&full_path, &file.content)
+                .map_err(|err| ShukaError::Storage(format!("failed to write to {}: {err}", full_path.display())))?;
+        }
+
         Ok(SaveResult {
             output_path,
             files_written: bundle.files.len()
