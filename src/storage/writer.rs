@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::{
     error::ShukaError,
@@ -18,8 +18,7 @@ pub fn write_source_files(
         for file in &bundle.files {
             let full_path = output_path.join(&file.path);
             if let Some(parent) = full_path.parent() {
-                let parent_dir: PathBuf = parent.to_path_buf();
-                prepare_directory(&parent_dir)?
+                prepare_directory(parent)?
             }
 
             fs::write(&full_path, &file.content)
@@ -55,11 +54,10 @@ fn resolve_output_dir(request: &FetchRequest) -> PathBuf {
     save_dir
 }
 
-fn prepare_directory(path: &PathBuf) -> Result<(), ShukaError> {
+fn prepare_directory(path: &Path) -> Result<(), ShukaError> {
     match fs::create_dir_all(path) {
         Ok(_) => Ok(()),
         Err(err) => {
-            //@todo add `path` to output
             return Err(ShukaError::Storage(format!("failed to create {}: {err}", path.display())));
         }
     }

@@ -48,9 +48,17 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
 
     let trimmed_source_code = source_code.trim();
 
+    let normalized_source_code = if trimmed_source_code
+        .starts_with("{{") && trimmed_source_code.ends_with("}}") {
+            // Remove the outer double braces
+            trimmed_source_code[1..trimmed_source_code.len() - 1].to_string()
+        } else {
+            trimmed_source_code.to_string()
+        };
+
     // Get the `SourceCode` field for multi contracts
     let files = if trimmed_source_code.starts_with("{") {
-        let parsed_multi_contracts: Value = serde_json::from_str(&trimmed_source_code)
+        let parsed_multi_contracts: Value = serde_json::from_str(&normalized_source_code)
             .map_err(|err| ShukaError::Parser(format!("failed to parse multi contracts: {err}")))?;
 
         let file_map = if let Some(sources_value) = parsed_multi_contracts.get("sources") {
