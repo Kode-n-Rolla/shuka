@@ -1,6 +1,10 @@
 use shuka::cli;
 
-fn main() -> Result<(), shuka::error::ShukaError> {
+fn main() {
     println!("shuka greetings you\n");
-    cli::run()
+
+    if let Err(err) = cli::run() {
+        eprintln!("Error: {err}");
+        std::process::exit(1);
+    }
 }

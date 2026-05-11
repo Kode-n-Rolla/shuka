@@ -31,13 +31,23 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
         .ok_or_else(|| ShukaError::Parser("`SourceCode` field is empty".to_string()))?
         .as_str()
         .ok_or_else(|| ShukaError::Parser("`SourceCode` is not a string".to_string()))?;
+
+    let trimmed_source_code = source_code.trim();
+
+    if trimmed_source_code.is_empty() {
+        return Err(ShukaError::Parser("contract source code is empty".to_string()));
+    }
     
-        // Get `ContractName` field
+    // Get `ContractName` field
     let contract_name = contract_entry
         .get("ContractName")
         .ok_or_else(|| ShukaError::Parser("`ContractName` field is empty".to_string()))?
         .as_str()
         .ok_or_else(|| ShukaError::Parser("`ContractName` is not a string".to_string()))?;
+
+    if contract_name.is_empty() {
+        return Err(ShukaError::Parser("contract name is empty".to_string()));
+    }
     
     // Get `CompilerVersion` field
     let compiler_version = contract_entry
@@ -46,7 +56,6 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
         .as_str()
         .ok_or_else(|| ShukaError::Parser("`CompilerVersion` is not a string".to_string()))?;
 
-    let trimmed_source_code = source_code.trim();
 
     let normalized_source_code = if trimmed_source_code
         .starts_with("{{") && trimmed_source_code.ends_with("}}") {

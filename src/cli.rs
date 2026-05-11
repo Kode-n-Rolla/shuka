@@ -64,7 +64,11 @@ pub fn run() -> Result<(), ShukaError> {
         Commands::Fetch(args) => {
             let request = args.into_request();
             let outcome = run_fetch(request)?;
-            println!("Outcome: {:#?}", outcome);
+
+            println!("Fetched source successfully");
+            println!("Output directory: {}", outcome.output_path.display());
+            println!("Files written: {}", outcome.files_written);
+            
             Ok(())
         }
     }
