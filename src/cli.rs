@@ -10,6 +10,9 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 #[derive(Debug, Parser)]
 #[command(name = "shuka")]
 pub struct Cli {
+    #[arg(long, global = true)]
+    pub with_banner: bool,
+
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -57,8 +60,26 @@ impl From<CliExplorer> for ExplorerKind {
     }
 }
 
+fn print_banner() {
+    println!(
+        r#"
+       .__           __            
+  _____|  |__  __ __|  | _______   
+ /  ___/  |  \|  |  \  |/ /\__  \  
+ \___ \|   Y  \  |  /    <  / __ \_
+/____  >___|  /____/|__|_ \(____  /
+     \/     \/           \/     \/ 
+                                     
+        "#
+    );
+}
+
 pub fn run() -> Result<(), ShukaError> {
     let cli = Cli::parse();
+
+    if cli.with_banner {
+        print_banner();
+    }
 
     match cli.command {
         Commands::Fetch(args) => {
