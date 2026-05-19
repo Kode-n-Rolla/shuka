@@ -6,6 +6,10 @@ use crate::{
     types::{ExplorerKind, FetchRequest, ParsedSourceBundle, RawExplorerResponse, SaveResult},
 };
 
+/// Writes normalized source files to the request output directory.
+///
+/// File paths are validated before writing so explorer-provided paths cannot
+/// escape the selected output directory.
 pub fn write_source_files(
     request: &FetchRequest,
     bundle: &ParsedSourceBundle,
@@ -33,6 +37,7 @@ pub fn write_source_files(
     })
 }
 
+/// Writes the raw explorer response beside the extracted source files.
 pub fn write_raw_response(
     request: &FetchRequest,
     raw_response: &RawExplorerResponse,

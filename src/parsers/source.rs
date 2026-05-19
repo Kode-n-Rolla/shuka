@@ -5,6 +5,11 @@ use crate::{
 
 use serde_json::Value;
 
+/// Parses an explorer response into normalized source files and metadata.
+///
+/// The current parser supports Etherscan-like responses where `result` is an
+/// array and each contract entry includes `SourceCode`, `ContractName`, and
+/// `CompilerVersion`.
 pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, ShukaError> {
     let parsed: Value = serde_json::from_str(&source.body)
         .map_err(|err| ShukaError::Parser(format!("failed to parse: {err}")))?;

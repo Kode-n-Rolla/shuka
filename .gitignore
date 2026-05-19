@@ -1,2 +1,6 @@
-/target
+/target/
+/contracts/
+
 .env
+.vscode/
+.codex

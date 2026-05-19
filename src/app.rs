@@ -7,6 +7,10 @@ use crate::{
     types::{ExplorerKind, FetchOutcome, FetchRequest},
 };
 
+/// Runs the complete fetch pipeline for a single contract address.
+///
+/// The app layer selects the explorer adapter, saves the raw response, parses
+/// source files, and delegates filesystem writes to storage.
 pub fn run_fetch(request: FetchRequest) -> Result<FetchOutcome, ShukaError> {
     let raw_response = match &request.explorer {
         ExplorerKind::Ethereum => {
