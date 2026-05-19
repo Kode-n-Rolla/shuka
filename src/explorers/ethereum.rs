@@ -18,7 +18,10 @@ impl SourceExplorer for EthereumExplorer {
 
         // Prepare the request
         let client = blocking::Client::new();
-        let chain_id = request.chain_id.to_string();
+        let chain_id = request
+            .chain_id
+            .ok_or_else(|| ShukaError::Cli("ethereum explorer requires --chain-id".to_string()))?
+            .to_string();
 
         let response = client
             .get(BASE_API_URL)

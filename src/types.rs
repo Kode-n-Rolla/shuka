@@ -10,7 +10,7 @@ pub enum ExplorerKind {
 pub struct FetchRequest {
     pub explorer: ExplorerKind,
     pub address: String,
-    pub chain_id: u32,
+    pub chain_id: Option<u32>,
     pub output_dir: Option<PathBuf>,
 }
 
