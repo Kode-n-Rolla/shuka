@@ -20,7 +20,8 @@ impl SourceExplorer for EthereumExplorer {
         let client = blocking::Client::new();
         let chain_id = request.chain_id.to_string();
 
-        let response = client.get(BASE_API_URL)
+        let response = client
+            .get(BASE_API_URL)
             .query(&[
                 ("apikey", key),
                 ("chainid", chain_id),
@@ -29,24 +30,27 @@ impl SourceExplorer for EthereumExplorer {
                 ("address", request.address.clone()),
             ])
             .send()
-            .map_err(| err | ShukaError::Explorer(format!("failed to send request to Etherscan: {err}")))?;
+            .map_err(|err| {
+                ShukaError::Explorer(format!("failed to send request to Etherscan: {err}"))
+            })?;
 
         let status = response.status();
         if !status.is_success() {
-            return Err(ShukaError::Explorer(format!("Etherscan API returned unsuccessful status: {status}")));
+            return Err(ShukaError::Explorer(format!(
+                "Etherscan API returned unsuccessful status: {status}"
+            )));
         }
 
-        let body = response.text()
-            .map_err(| err | ShukaError::Explorer(format!("Failed to handle body: {err}")))?;
+        let body = response
+            .text()
+            .map_err(|err| ShukaError::Explorer(format!("Failed to handle body: {err}")))?;
 
-        Ok(RawExplorerResponse {
-            body,
-         })
+        Ok(RawExplorerResponse { body })
     }
 }
 
 fn get_api_key() -> Result<String, ShukaError> {
     dotenvy::dotenv().ok();
     env::var("ETHEREUM_API_KEY")
-        .map_err(| err| ShukaError::Config(format!("failed to read ETHEREUM_API_KEY: {err}")))
+        .map_err(|err| ShukaError::Config(format!("failed to read ETHEREUM_API_KEY: {err}")))
 }

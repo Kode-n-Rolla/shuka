@@ -1,18 +1,18 @@
+use crate::explorers::traits::SourceExplorer;
 use crate::{
     error::ShukaError,
     explorers::{battlechain, ethereum},
     parsers::source::parse_source,
     storage::writer::{write_raw_response, write_source_files},
-    types::{ExplorerKind, FetchOutcome, FetchRequest}
+    types::{ExplorerKind, FetchOutcome, FetchRequest},
 };
-use crate::explorers::traits::SourceExplorer;
 
 pub fn run_fetch(request: FetchRequest) -> Result<FetchOutcome, ShukaError> {
     let raw_response = match &request.explorer {
         ExplorerKind::Ethereum => {
             let explorer = ethereum::EthereumExplorer;
             explorer.fetch(&request)
-        },
+        }
         ExplorerKind::Battlechain => {
             let explorer = battlechain::BattlechainExplorer;
             explorer.fetch(&request)
@@ -27,6 +27,6 @@ pub fn run_fetch(request: FetchRequest) -> Result<FetchOutcome, ShukaError> {
 
     Ok(FetchOutcome {
         output_path: save_result.output_path,
-        files_written: save_result.files_written
+        files_written: save_result.files_written,
     })
 }

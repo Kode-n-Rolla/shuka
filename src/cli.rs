@@ -68,7 +68,7 @@ pub fn run() -> Result<(), ShukaError> {
             println!("Fetched source successfully");
             println!("Output directory: {}", outcome.output_path.display());
             println!("Files written: {}", outcome.files_written);
-            
+
             Ok(())
         }
     }
