@@ -25,11 +25,7 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
         .ok_or_else(|| ShukaError::Parser("result array is empty".to_string()))?;
 
     // Get the `SourceCode` field for 1 contract
-    let source_code = contract_entry
-        .get("SourceCode")
-        .ok_or_else(|| ShukaError::Parser("`SourceCode` field is empty".to_string()))?
-        .as_str()
-        .ok_or_else(|| ShukaError::Parser("`SourceCode` is not a string".to_string()))?;
+    let source_code = get_required_string(contract_entry, "SourceCode")?;
 
     let trimmed_source_code = source_code.trim();
 
@@ -40,22 +36,14 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
     }
 
     // Get `ContractName` field
-    let contract_name = contract_entry
-        .get("ContractName")
-        .ok_or_else(|| ShukaError::Parser("`ContractName` field is empty".to_string()))?
-        .as_str()
-        .ok_or_else(|| ShukaError::Parser("`ContractName` is not a string".to_string()))?;
+    let contract_name = get_required_string(contract_entry, "ContractName")?;
 
     if contract_name.is_empty() {
         return Err(ShukaError::Parser("contract name is empty".to_string()));
     }
 
     // Get `CompilerVersion` field
-    let compiler_version = contract_entry
-        .get("CompilerVersion")
-        .ok_or_else(|| ShukaError::Parser("`CompilerVersion` field is empty".to_string()))?
-        .as_str()
-        .ok_or_else(|| ShukaError::Parser("`CompilerVersion` is not a string".to_string()))?;
+    let compiler_version = get_required_string(contract_entry, "CompilerVersion")?;
 
     let normalized_source_code =
         if trimmed_source_code.starts_with("{{") && trimmed_source_code.ends_with("}}") {
@@ -113,4 +101,10 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
     })
 }
 
-// @todo move functionality to separate function (func per explorer) when implementing `battlechain` explorer
+fn get_required_string<'a>(value: &'a Value, field_name: &str) -> Result<&'a str, ShukaError> {
+    value
+        .get(field_name)
+        .ok_or_else(|| ShukaError::Parser(format!("`{field_name}` field is missing")))?
+        .as_str()
+        .ok_or_else(|| ShukaError::Parser(format!("`{field_name}` is not a string")))
+}
