@@ -115,3 +115,64 @@ fn parse_single_file_source(contract_name: &str, source_code: &str) -> Vec<Sourc
         content: source_code.into(),
     }]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_single_file_source() {
+        let raw = RawExplorerResponse {
+            body: r#"
+            {
+                "status": "1",
+                "message": "OK",
+                "result": [
+                    {
+                        "SourceCode": "pragma solidity ^0.8.0;\ncontract Token {}",
+                        "ContractName": "Token",
+                        "CompilerVersion": "v0.8.20+commit.a1b79de6"
+                    }
+                ]
+            }
+            "#
+            .to_string(),
+        };
+
+        let bundle = parse_source(&raw).expect("single-file source should parse");
+
+        assert_eq!(bundle.files.len(), 1);
+        assert_eq!(bundle.files[0].path, std::path::PathBuf::from("Token.sol"));
+        assert!(bundle.files[0].content.contains("contract Token"));
+    }
+
+    #[test]
+    fn parses_multi_file_source() {
+        let source_code = r#"{{"sources":{"src/A.sol":{"content":"pragma solidity ^0.8.0;\ncontract A {}"},"src/B.sol":{"content":"pragma solidity ^0.8.0;\ncontract B {}"}}}}"#;
+
+        let raw = RawExplorerResponse {
+            body: format!(
+                r#"{{
+                    "status": "1",
+                    "message": "OK",
+                    "result": [
+                        {{
+                            "SourceCode": {source_code:?},
+                            "ContractName": "A",
+                            "CompilerVersion": "v0.8.20+commit.a1b79de6"
+                        }}
+                    ]
+                }}"#
+            ),
+        };
+
+        let bundle = parse_source(&raw).expect("multi-file source should parse");
+
+        assert_eq!(bundle.files.len(), 2);
+
+        let paths: Vec<_> = bundle.files.iter().map(|file| file.path.clone()).collect();
+
+        assert!(paths.contains(&std::path::PathBuf::from("src/A.sol")));
+        assert!(paths.contains(&std::path::PathBuf::from("src/B.sol")));
+    }
+}
