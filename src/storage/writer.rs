@@ -89,7 +89,7 @@ fn validate_source_path(path: &Path) -> Result<(), ShukaError> {
             }
             Component::RootDir | Component::Prefix(_) => {
                 return Err(ShukaError::Storage(format!(
-                    "source fule path must be relative: {}",
+                    "source file path must be relative: {}",
                     path.display()
                 )));
             }
@@ -97,4 +97,45 @@ fn validate_source_path(path: &Path) -> Result<(), ShukaError> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn accepts_relative_source_path() {
+        let path = Path::new("src/Token.sol");
+
+        let result = validate_source_path(path);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn rejects_empty_source_path() {
+        let path = Path::new("");
+
+        let result = validate_source_path(path);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn rejects_parent_dir_source_path() {
+        let path = Path::new("../Token.sol");
+
+        let result = validate_source_path(path);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn rejects_absolute_source_path() {
+        let path = Path::new("/tmp/Token.sol");
+
+        let result = validate_source_path(path);
+
+        assert!(result.is_err());
+    }
 }
