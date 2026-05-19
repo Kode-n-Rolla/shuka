@@ -9,7 +9,6 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
     let parsed: Value = serde_json::from_str(&source.body)
         .map_err(|err| ShukaError::Parser(format!("failed to parse: {err}")))?;
 
-    // Get the 1st entry in the array
     let contract_entry = get_first_contract_entry(&parsed)?;
 
     // Get the `SourceCode` field for 1 contract
@@ -33,51 +32,13 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
     // Get `CompilerVersion` field
     let compiler_version = get_required_string(contract_entry, "CompilerVersion")?;
 
-    let normalized_source_code =
-        if trimmed_source_code.starts_with("{{") && trimmed_source_code.ends_with("}}") {
-            // Remove the outer double braces
-            trimmed_source_code[1..trimmed_source_code.len() - 1].to_string()
-        } else {
-            trimmed_source_code.to_string()
-        };
+    let normalized_source_code = normalize_source_code(trimmed_source_code);
 
     // Get the `SourceCode` field for multi contracts
-    let files = if trimmed_source_code.starts_with("{") {
-        let parsed_multi_contracts: Value = serde_json::from_str(&normalized_source_code)
-            .map_err(|err| ShukaError::Parser(format!("failed to parse multi contracts: {err}")))?;
-
-        let file_map = if let Some(sources_value) = parsed_multi_contracts.get("sources") {
-            sources_value
-                .as_object()
-                .ok_or_else(|| ShukaError::Parser("sources field is not an object".to_string()))?
-        } else {
-            parsed_multi_contracts.as_object().ok_or_else(|| {
-                ShukaError::Parser("structured SourceCode file map not found".to_string())
-            })?
-        };
-
-        let mut contracts = Vec::new();
-        for (file_name, file_value) in file_map {
-            let content = file_value
-                .get("content")
-                .ok_or_else(|| ShukaError::Parser("file content field is missing".to_string()))?
-                .as_str()
-                .ok_or_else(|| ShukaError::Parser("file content is not a string".to_string()))?;
-
-            contracts.push(SourceFile {
-                path: file_name.into(),
-                content: content.into(),
-            });
-        }
-
-        contracts
+    let files = if normalized_source_code.starts_with("{") {
+        parse_multi_file_source(&normalized_source_code)?
     } else {
-        // single contract push
-        let contract = vec![SourceFile {
-            path: format!("{}.sol", contract_name).into(),
-            content: source_code.into(),
-        }];
-        contract
+        parse_single_file_source(contract_name, source_code)
     };
 
     Ok(ParsedSourceBundle {
@@ -109,4 +70,48 @@ fn get_first_contract_entry(value: &Value) -> Result<&Value, ShukaError> {
     result_array
         .first()
         .ok_or_else(|| ShukaError::Parser("result array is empty".to_string()))
+}
+
+fn normalize_source_code(source_code: &str) -> String {
+    if source_code.starts_with("{{") && source_code.ends_with("}}") {
+        // Remove the outer double braces
+        source_code[1..source_code.len() - 1].to_string()
+    } else {
+        source_code.to_string()
+    }
+}
+
+fn parse_multi_file_source(source_code: &str) -> Result<Vec<SourceFile>, ShukaError> {
+    let parsed_multi_contracts: Value = serde_json::from_str(source_code)
+        .map_err(|err| ShukaError::Parser(format!("failed to parse multi contracts: {err}")))?;
+
+    let file_map = if let Some(sources_value) = parsed_multi_contracts.get("sources") {
+        sources_value
+            .as_object()
+            .ok_or_else(|| ShukaError::Parser("sources field is not an object".to_string()))?
+    } else {
+        parsed_multi_contracts.as_object().ok_or_else(|| {
+            ShukaError::Parser("structured SourceCode file map not found".to_string())
+        })?
+    };
+
+    let mut files = Vec::new();
+
+    for (file_name, file_value) in file_map {
+        let content = get_required_string(file_value, "content")?;
+
+        files.push(SourceFile {
+            path: file_name.into(),
+            content: content.into(),
+        });
+    }
+
+    Ok(files)
+}
+
+fn parse_single_file_source(contract_name: &str, source_code: &str) -> Vec<SourceFile> {
+    vec![SourceFile {
+        path: format!("{contract_name}.sol").into(),
+        content: source_code.into(),
+    }]
 }
