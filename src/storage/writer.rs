@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use crate::{
     error::ShukaError,
@@ -15,6 +15,8 @@ pub fn write_source_files(
     prepare_directory(&output_path)?;
 
     for file in &bundle.files {
+        validate_source_path(&file.path)?;
+
         let full_path = output_path.join(&file.path);
         if let Some(parent) = full_path.parent() {
             prepare_directory(parent)?
@@ -68,4 +70,31 @@ fn prepare_directory(path: &Path) -> Result<(), ShukaError> {
             )));
         }
     }
+}
+
+fn validate_source_path(path: &Path) -> Result<(), ShukaError> {
+    if path.as_os_str().is_empty() {
+        return Err(ShukaError::Storage("source file path is empty".to_string()));
+    }
+
+    for component in path.components() {
+        match component {
+            Component::Normal(_) => {}
+            Component::CurDir => {}
+            Component::ParentDir => {
+                return Err(ShukaError::Storage(format!(
+                    "source file path cannot contain '..': {}",
+                    path.display()
+                )));
+            }
+            Component::RootDir | Component::Prefix(_) => {
+                return Err(ShukaError::Storage(format!(
+                    "source fule path must be relative: {}",
+                    path.display()
+                )));
+            }
+        }
+    }
+
+    Ok(())
 }
