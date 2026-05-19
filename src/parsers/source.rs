@@ -9,20 +9,8 @@ pub fn parse_source(source: &RawExplorerResponse) -> Result<ParsedSourceBundle, 
     let parsed: Value = serde_json::from_str(&source.body)
         .map_err(|err| ShukaError::Parser(format!("failed to parse: {err}")))?;
 
-    // Get the "result" field from parsed JSON
-    let result_value = parsed
-        .get("result")
-        .ok_or_else(|| ShukaError::Parser("missing result field".to_string()))?;
-
-    // Check for array
-    let result_array = result_value
-        .as_array()
-        .ok_or_else(|| ShukaError::Parser("result field is not an array".to_string()))?;
-
     // Get the 1st entry in the array
-    let contract_entry = result_array
-        .first()
-        .ok_or_else(|| ShukaError::Parser("result array is empty".to_string()))?;
+    let contract_entry = get_first_contract_entry(&parsed)?;
 
     // Get the `SourceCode` field for 1 contract
     let source_code = get_required_string(contract_entry, "SourceCode")?;
@@ -107,4 +95,18 @@ fn get_required_string<'a>(value: &'a Value, field_name: &str) -> Result<&'a str
         .ok_or_else(|| ShukaError::Parser(format!("`{field_name}` field is missing")))?
         .as_str()
         .ok_or_else(|| ShukaError::Parser(format!("`{field_name}` is not a string")))
+}
+
+fn get_first_contract_entry(value: &Value) -> Result<&Value, ShukaError> {
+    let result_value = value
+        .get("result")
+        .ok_or_else(|| ShukaError::Parser("missing result field".to_string()))?;
+
+    let result_array = result_value
+        .as_array()
+        .ok_or_else(|| ShukaError::Parser("result field is not an array".to_string()))?;
+
+    result_array
+        .first()
+        .ok_or_else(|| ShukaError::Parser("result array is empty".to_string()))
 }
