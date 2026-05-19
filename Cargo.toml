@@ -6,15 +6,6 @@ description = "CLI tool for fetching verified smart contract source code from bl
 license = "MIT"
 repository = "https://github.com/kode-n-rolla/shuka"
 readme = "README.md"
-exclude = [
-    "AGENTS.md",
-    "ARCHITECTURE.md",
-    "Roadmap.md",
-    "TASKS.md",
-    "cmd_helper.md",
-    "for_other_parse_case.md",
-    "how_to_add_another_explorer.md",
-]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
