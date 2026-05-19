@@ -3,7 +3,7 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::{
     error::ShukaError,
-    types::{FetchRequest, ParsedSourceBundle, RawExplorerResponse, SaveResult},
+    types::{ExplorerKind, FetchRequest, ParsedSourceBundle, RawExplorerResponse, SaveResult},
 };
 
 pub fn write_source_files(
@@ -52,12 +52,12 @@ pub fn write_raw_response(
 
 // Helpers
 fn resolve_output_dir(request: &FetchRequest) -> PathBuf {
-    let save_dir = match &request.output_dir {
+    match &request.output_dir {
         Some(dir) => dir.clone(),
-        None => PathBuf::from("contracts/"),
-    };
-
-    save_dir
+        None => PathBuf::from("contracts")
+            .join(explorer_dir_name(request))
+            .join(&request.address),
+    }
 }
 
 fn prepare_directory(path: &Path) -> Result<(), ShukaError> {
@@ -99,6 +99,13 @@ fn validate_source_path(path: &Path) -> Result<(), ShukaError> {
     Ok(())
 }
 
+fn explorer_dir_name(request: &FetchRequest) -> &'static str {
+    match request.explorer {
+        ExplorerKind::Ethereum => "ethereum",
+        ExplorerKind::Battlechain => "battlechain",
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -137,5 +144,36 @@ mod tests {
         let result = validate_source_path(path);
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn resolves_default_output_dir_by_explorer_and_address() {
+        let request = FetchRequest {
+            explorer: ExplorerKind::Battlechain,
+            address: "0xabc".to_string(),
+            chain_id: None,
+            output_dir: None,
+        };
+
+        let output_dir = resolve_output_dir(&request);
+
+        assert_eq!(
+            output_dir,
+            PathBuf::from("contracts").join("battlechain").join("0xabc")
+        );
+    }
+
+    #[test]
+    fn respects_custom_output_dir() {
+        let request = FetchRequest {
+            explorer: ExplorerKind::Ethereum,
+            address: "0xabc".to_string(),
+            chain_id: Some(1),
+            output_dir: Some(PathBuf::from("custom")),
+        };
+
+        let output_dir = resolve_output_dir(&request);
+
+        assert_eq!(output_dir, PathBuf::from("custom"));
     }
 }
