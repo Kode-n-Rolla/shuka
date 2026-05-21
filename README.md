@@ -1,6 +1,6 @@
 # shuka
 
-`shuka` is a small CLI tool for fetching verified smart contract source code
+`shuka` is a CLI tool for fetching verified smart contract source code
 from blockchain explorers and saving the full source tree locally.
 
 It is built for the workflow where manually copying verified source files from
