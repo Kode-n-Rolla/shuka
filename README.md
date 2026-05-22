@@ -25,8 +25,8 @@ The project keeps explorer-specific fetching, parsing, and filesystem storage se
 
 | Explorer | Network | API key | Chain ID |
 |----------|----------|-------:|---------:|
-| Ethereum / Etherscan v2 | Ethereum Mainnet | Required | Required |
-| Battlechain Explorer | Battlechain Testnet | Not required | Not required |
+| [Etherscan](https://etherscan.io/) | Ethereum Mainnet | Required | Required |
+| [Battlechain](https://explorer.testnet.battlechain.com/) | Battlechain Testnet | Not required | Not required |
 
 ## Installation
 
@@ -166,129 +166,28 @@ Important boundaries:
 
 ## Adding Another Explorer
 
-Adding an explorer means answering two separate questions:
+Adding a new explorer usually means:
 
-1. How do we fetch the raw source-code response?
-2. How do we parse that raw response into `ParsedSourceBundle`?
+1. document the API behavior
+2. add explorer enum support
+3. implement a `SourceExplorer` adapter
+4. register the adapter in the app layer
+5. test raw response saving
+6. update parser logic only if the raw response shape differs
 
-Do not treat those as one problem.
+See [docs/adding-another-explorer.md](https://github.com/Kode-n-Rolla/shuka/blob/main/docs/adding-another-explorer.md) for the full checklist.
 
-### 1. Check API Behavior First
+## Parser Notes
 
-Before writing code, gather:
+The current parser handles Etherscan-like response envelopes and supports:
 
-- endpoint URL
-- required query parameters
-- whether an API key is required
-- whether chain id is required
-- one known verified contract address
-- one sample raw response
-
-Save request examples and raw responses locally while developing. This avoids
-designing the parser blindly.
-
-### 2. Add Enum Support
-
-Update:
-
-- `src/types.rs`
-- `src/cli.rs`
-
-Make sure:
-
-- `ExplorerKind` has the new explorer.
-- `CliExplorer` has the new explorer.
-- `CliExplorer` maps correctly into `ExplorerKind`.
-
-### 3. Create the Explorer Adapter
-
-Add:
-
-```text
-src/explorers/<new_explorer>.rs
-```
-
-The adapter should:
-
-1. implement `SourceExplorer`
-2. build the explorer-specific request
-3. send the HTTP request
-4. validate HTTP status
-5. read the body as text
-6. return `RawExplorerResponse { body }`
-
-If the explorer requires `--chain-id`, validate it in the adapter and return
-`ShukaError::Cli` when it is missing. If the explorer does not use chain id,
-leave it unused.
-
-Do not parse contract files inside the adapter.
-
-### 4. Register the Explorer
-
-Update:
-
-- `src/explorers/mod.rs`
-- `src/app.rs`
-- `src/storage/writer.rs`
-
-The app layer should only choose the right adapter and keep the rest of the
-pipeline unchanged.
-
-Storage needs an explorer directory name so default output remains:
-
-```text
-contracts/<explorer>/<address>/
-```
-
-### 5. Test Fetch Before Parser Changes
-
-Before changing parser behavior, make sure:
-
-- raw fetch succeeds
-- `raw_response.json` is saved
-
-If fetch works but parsing fails, the next fix belongs in the parser, not in the
-adapter.
-
-## Handling Other Parse Cases
-
-The current parser assumes an Etherscan-like response envelope:
-
-- top-level JSON object
-- `result` field exists
-- `result` is an array
-- first entry in `result` contains:
-  - `SourceCode`
-  - `ContractName`
-  - `CompilerVersion`
-
-`SourceCode` is handled in two formats:
-
-1. plain string source
+1. plain Solidity source
 2. structured multi-file source
 
-When a new explorer response fails to parse, inspect `raw_response.json` and
-identify what changed:
-
-- top-level response envelope
-- contract entry field names
-- `SourceCode` format
-- metadata field names
-
-Fix parsing in the smallest possible parser branch. Do not fix parser problems
-in storage or explorer code if the raw response is already saved correctly.
-
-If a future explorer introduces a truly different shape, consider adding
-explorer-specific parser helpers such as:
-
-- `parse_etherscan_like_source(...)`
-- `parse_solscan_source(...)`
-
-Only add that split when real response formats justify it.
+If a new explorer fails to parse but `raw_response.json` is saved correctly, the fix usually belongs in the parser, not in the explorer adapter or storage layer.
+Full instructions 👉 [docs/parser-notes.md](https://github.com/Kode-n-Rolla/shuka/blob/main/docs/parser-notes.md)
 
 ## ToDo
 - [ ] add badges after publish to crates
 ![Crates.io](https://img.shields.io/crates/v/shuka)
 ![Docs.rs](https://img.shields.io/docsrs/shuka)
-- [ ] add MIT license
-- [ ] move full instractions (add new exp and parsing) to `docs/` and replace to short version
