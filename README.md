@@ -4,9 +4,9 @@
 
 ![Rust](https://img.shields.io/badge/Rust-CLI-orange)
 ![Status](https://img.shields.io/badge/status-early%20development-blue)
-![License](https://img.shields.io/github/license/Kode-n-Rolla/shuka)
+[![License](https://img.shields.io/crates/l/shuka)](https://spdx.org/licenses/MIT.html)
 ![Crates.io](https://img.shields.io/crates/v/shuka)
-![Docs.rs](https://img.shields.io/docsrs/shuka)
+[![Docs](https://docs.rs/shuka/badge.svg)](https://docs.rs/shuka)
 
 ## About
 
@@ -15,6 +15,11 @@
 It is built for workflows where manually copying verified source files from explorer pages is slow, repetitive, and error-prone.
 
 The project keeps explorer-specific fetching, parsing, and filesystem storage separated so new explorers can be added without rewriting the whole pipeline.
+
+## Links
+
+- [Crates.io](https://crates.io/crates/shuka)
+- [Documentation](https://docs.rs/shuka)
 
 ## Features
 
