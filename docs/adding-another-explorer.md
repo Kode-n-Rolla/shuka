@@ -81,5 +81,5 @@ Before changing parser behavior, make sure:
 - raw fetch succeeds
 - `raw_response.json` is saved
 
-If fetch works but parsing fails, the next fix belongs in the parser, not in the
+If fetch works but parsing fails, the next fix belongs in the [parser](https://github.com/Kode-n-Rolla/shuka/blob/main/docs/parser-notes.md), not in the
 adapter.
