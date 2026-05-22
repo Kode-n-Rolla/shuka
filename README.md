@@ -32,7 +32,7 @@ The project keeps explorer-specific fetching, parsing, and filesystem storage se
 
 | Explorer | Network | API key | Chain ID |
 |----------|----------|-------:|---------:|
-| [Etherscan](https://etherscan.io/) | Ethereum Mainnet | Required | Required |
+| [Etherscan](https://etherscan.io/) | Ethereum Mainnet | Required | Required - 1 |
 | [Battlechain](https://explorer.testnet.battlechain.com/) | Battlechain Testnet | Not required | Not required |
 
 ## Installation
@@ -66,22 +66,26 @@ cargo install --path .
 cargo install shuka
 ```
 
+You still need to provide an Etherscan API key when using the Ethereum explorer.
+
+`shuka` reads the key from the `ETHEREUM_API_KEY` environment variable. You can provide it in two ways:
+1. export/set the variable in your terminal
+2. create a `.env` file in the directory where you run shuka
+
+Battlechain does not require an API key.
+
 ## Configuration
+
+`shuka` does not store API keys. Provide them through environment variables or a local `.env` file in your working directory.
 
 ### Ethereum / Etherscan v2
 
-Ethereum uses the Etherscan v2 API and requires an API key.
+Ethereum uses the Etherscan v2 API and requires an API key and `--chain-id` for usage.
 
 Create a local `.env` file:
 
 ```bash
 ETHEREUM_API_KEY=your_key_here
-```
-
-Ethereum also requires `--chain-id`. For Ethereum Mainnet, use:
-
-```
---chain-id 1
 ```
 
 ### Battlechain Testnet
@@ -90,6 +94,74 @@ Battlechain does not require:
 
 - API key
 - chain id
+
+### After `cargo install`
+
+#### Linux / macOS
+
+Set the key for the current terminal session:
+
+```bash
+export ETHEREUM_API_KEY="your_key_here"
+```
+
+Then run:
+
+```bash
+shuka fetch ethereum 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --chain-id 1
+```
+
+To make it persistent, add it to your shell config:
+
+```bash
+echo 'export ETHEREUM_API_KEY="your_key_here"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+For Zsh users:
+
+```bash
+echo 'export ETHEREUM_API_KEY="your_key_here"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### Windows PowerShell
+
+Set the key for the current PowerShell session:
+
+```powershell
+$env:ETHEREUM_API_KEY="your_key_here"
+```
+
+Then run:
+
+```powershell
+shuka fetch ethereum 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --chain-id 1
+```
+
+To make it persistent for your user account:
+
+```powershell
+[Environment]::SetEnvironmentVariable("ETHEREUM_API_KEY", "your_key_here", "User")
+```
+
+After setting it permanently, open a new PowerShell window.
+
+#### Using a `.env` file
+
+You can also create a `.env` file in the directory where you run `shuka`:
+
+```bash
+ETHEREUM_API_KEY=your_key_here
+```
+Example:
+
+```bash
+mkdir contract-sources
+cd contract-sources
+echo 'ETHEREUM_API_KEY=your_key_here' > .env
+shuka fetch ethereum 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --chain-id 1
+```
 
 ## Usage
 
