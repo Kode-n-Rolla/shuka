@@ -92,8 +92,13 @@ TODO - Show help: screenshot
 
 ```bash
 shuka --help
+```
+![general-help](https://github.com/Kode-n-Rolla/shuka/blob/main/assets/shuka-general-help.png)
+
+```bash
 shuka fetch --help
 ```
+![fetch-help](https://github.com/Kode-n-Rolla/shuka/blob/main/assets/shuka-fetch-help.png)
 
 Fetch an Ethereum contract:
 
