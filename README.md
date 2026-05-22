@@ -1,6 +1,6 @@
 # shuka
 
-![shuka-banner](https://github.com/Kode-n-Rolla/shuka/blob/main/assets/shuka-banner.png)
+![shuka-banner](https://raw.githubusercontent.com/Kode-n-Rolla/shuka/main/assets/shuka-banner.png)
 
 `shuka` is a CLI tool for fetching verified smart contract source code
 from blockchain explorers and saving the full source tree locally.
