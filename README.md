@@ -5,6 +5,8 @@
 ![Rust](https://img.shields.io/badge/Rust-CLI-orange)
 ![Status](https://img.shields.io/badge/status-early%20development-blue)
 ![License](https://img.shields.io/github/license/Kode-n-Rolla/shuka)
+![Crates.io](https://img.shields.io/crates/v/shuka)
+![Docs.rs](https://img.shields.io/docsrs/shuka)
 
 ## About
 
@@ -55,8 +57,6 @@ cargo install --path .
 
 ### Install with Cargo
 
-TODO: this command will be available after publishing to crates.io.
-
 ```bash
 cargo install shuka
 ```
@@ -87,8 +87,6 @@ Battlechain does not require:
 - chain id
 
 ## Usage
-
-TODO - Show help: screenshot
 
 ```bash
 shuka --help
@@ -191,8 +189,3 @@ The current parser handles Etherscan-like response envelopes and supports:
 
 If a new explorer fails to parse but `raw_response.json` is saved correctly, the fix usually belongs in the parser, not in the explorer adapter or storage layer.
 Full instructions 👉 [docs/parser-notes.md](https://github.com/Kode-n-Rolla/shuka/blob/main/docs/parser-notes.md)
-
-## ToDo
-- [ ] add badges after publish to crates
-![Crates.io](https://img.shields.io/crates/v/shuka)
-![Docs.rs](https://img.shields.io/docsrs/shuka)
