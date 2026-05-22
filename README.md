@@ -2,30 +2,60 @@
 
 ![shuka-banner](https://raw.githubusercontent.com/Kode-n-Rolla/shuka/main/assets/shuka-banner.png)
 
-`shuka` is a CLI tool for fetching verified smart contract source code
-from blockchain explorers and saving the full source tree locally.
+![Rust](https://img.shields.io/badge/Rust-CLI-orange)
+![Status](https://img.shields.io/badge/status-early%20development-blue)
+![License](https://img.shields.io/github/license/Kode-n-Rolla/shuka)
 
-It is built for the workflow where manually copying verified source files from
-explorer pages is slow and error-prone.
+## About
+
+`shuka` is a CLI tool for fetching verified smart contract source code from blockchain explorers and saving the full source tree locally.
+
+It is built for workflows where manually copying verified source files from explorer pages is slow, repetitive, and error-prone.
+
+The project keeps explorer-specific fetching, parsing, and filesystem storage separated so new explorers can be added without rewriting the whole pipeline.
 
 ## Features
 
 - Fetch verified smart contract source code by address.
 - Save raw explorer responses for inspection.
 - Save single-file and multi-file Solidity source trees.
-- Support Ethereum through Etherscan v2.
-- Support the Battlechain testnet explorer.
 - Keep explorer-specific API logic separate from parsing and storage.
+
+## Supported Explorers
+
+| Explorer | Network | API key | Chain ID |
+|----------|----------|-------:|---------:|
+| Ethereum / Etherscan v2 | Ethereum Mainnet | Required | Required |
+| Battlechain Explorer | Battlechain Testnet | Not required | Not required |
 
 ## Installation
 
-From source:
+### Prerequisites
+
+Install Rust and Cargo:
 
 ```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+### Check installation:
+
+```bash
+rustc --version
+cargo --version
+```
+
+### Install from source
+
+```bash
+git clone https://github.com/Kode-n-Rolla/shuka.git
+cd shuka
 cargo install --path .
 ```
 
-After publishing to crates.io:
+### Install with Cargo
+
+TODO: this command will be available after publishing to crates.io.
 
 ```bash
 cargo install shuka
@@ -33,18 +63,37 @@ cargo install shuka
 
 ## Configuration
 
-Ethereum uses the Etherscan v2 API and requires an API key:
+### Ethereum / Etherscan v2
+
+Ethereum uses the Etherscan v2 API and requires an API key.
+
+Create a local `.env` file:
 
 ```bash
 ETHEREUM_API_KEY=your_key_here
 ```
 
-You can put this in a local `.env` file while developing. `.env` is ignored by
-git.
+Ethereum also requires `--chain-id`. For Ethereum Mainnet, use:
 
-Battlechain does not require a chain id or API key.
+```
+--chain-id 1
+```
+
+### Battlechain Testnet
+
+Battlechain does not require:
+
+- API key
+- chain id
 
 ## Usage
+
+TODO - Show help: screenshot
+
+```bash
+shuka --help
+shuka fetch --help
+```
 
 Fetch an Ethereum contract:
 
@@ -83,17 +132,19 @@ Each output directory contains:
 
 ## Architecture
 
+`shuka` is intentionally organized as a small pipeline where each stage has one responsibility.
+
 The project follows a simple pipeline:
 
 ```text
 FetchRequest
--> Explorer Adapter
--> RawExplorerResponse
--> Parser
--> ParsedSourceBundle
--> Storage
--> SaveResult
--> FetchOutcome
+  -> Explorer Adapter
+  -> RawExplorerResponse
+  -> Parser
+  -> ParsedSourceBundle
+  -> Storage
+  -> SaveResult
+  -> FetchOutcome
 ```
 
 Module responsibilities:
@@ -235,49 +286,9 @@ explorer-specific parser helpers such as:
 
 Only add that split when real response formats justify it.
 
-## Development Checks
-
-Run formatting:
-
-```bash
-cargo fmt --check
-```
-
-Run tests:
-
-```bash
-cargo test
-```
-
-Build docs:
-
-```bash
-cargo doc --no-deps
-```
-
-Strict docs check:
-
-```bash
-RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
-```
-
-Package dry run:
-
-```bash
-cargo publish --dry-run
-```
-
-## Publishing Notes
-
-Before publishing:
-
-1. Ensure `Cargo.toml` metadata is correct.
-2. Run `cargo fmt --check`.
-3. Run `cargo test`.
-4. Run `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps`.
-5. Run `cargo publish --dry-run`.
-6. Commit the release state.
-7. Publish with `cargo publish`.
-
-Publishing to crates.io is permanent for a version. If a bad version is
-published, it can be yanked, but the uploaded version cannot be replaced.
+## ToDo
+- [ ] add badges after publish to crates
+![Crates.io](https://img.shields.io/crates/v/shuka)
+![Docs.rs](https://img.shields.io/docsrs/shuka)
+- [ ] add MIT license
+- [ ] move full instractions (add new exp and parsing) to `docs/` and replace to short version
