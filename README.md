@@ -165,8 +165,11 @@ shuka fetch ethereum 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --chain-id 1
 
 ## Usage
 
+### Example of usage via gif:
 ![shuka-demo](https://github.com/Kode-n-Rolla/shuka/blob/main/assets/demo.gif)
 
+
+### Example of usage via terminal and command screenshots:
 ```bash
 shuka --help
 ```
